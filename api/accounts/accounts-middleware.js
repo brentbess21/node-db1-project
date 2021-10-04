@@ -3,10 +3,10 @@ const Account = require('./accounts-model');
 
 const accountsSchema = yup.object().shape({
   name: yup.string('name of account must be a string')
-        .trim()
         .min(3,'name of account must be between 3 and 100')
         .max(100,'name of account must be between 3 and 100')
-        .required('name and budget are required'),
+        .required('name and budget are required')
+        .trim(),
   budget: yup.number('budget of account must be a number')
           .min(0, 'budget of account is too large or too small')
           .max(1000000, 'budget of account is too large or too small')
@@ -22,7 +22,10 @@ async function checkAccountPayload (req, res, next){
     req.body = validated
     next()
   } catch (err) {
-        next({ status: 400, message: err.message })
+    res.status(400).json({
+      message: err.message
+    })
+    next()
   }
 }
 
@@ -51,16 +54,8 @@ async function checkAccountId (req, res, next){
   }
 }
 
-
-function errorHandling (err, req, res, next) {
-  res.status(err.status || 500).json({
-    message: err.message
-  })
-}
-
 module.exports = {
   checkAccountId,
   checkAccountNameUnique,
   checkAccountPayload,
-  errorHandling
 }
