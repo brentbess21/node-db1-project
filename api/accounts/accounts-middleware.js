@@ -3,6 +3,7 @@ const Account = require('./accounts-model');
 
 const accountsSchema = yup.object().shape({
   name: yup.string('name of account must be a string')
+        .trim()
         .min(3,'name of account must be between 3 and 100')
         .max(100,'name of account must be between 3 and 100')
         .required('name and budget are required'),
@@ -32,11 +33,15 @@ function checkAccountNameUnique (req, res, next){
 
 async function checkAccountId (req, res, next){
   // DO YOUR MAGIC
+  
   try {
     const { id } = req.params
     const possibleAccount = await Account.getById(id)
     if (!possibleAccount) {
-      next({status: 404, message: 'account not found'})
+      res.status(404).json({
+        message:'account not found'
+      })
+      next()
     } else {
       req.account = possibleAccount
       next()
@@ -46,8 +51,16 @@ async function checkAccountId (req, res, next){
   }
 }
 
+
+function errorHandling (err, req, res, next) {
+  res.status(err.status || 500).json({
+    message: err.message
+  })
+}
+
 module.exports = {
   checkAccountId,
   checkAccountNameUnique,
-  checkAccountPayload
+  checkAccountPayload,
+  errorHandling
 }

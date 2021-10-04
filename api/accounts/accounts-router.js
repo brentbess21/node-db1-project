@@ -12,12 +12,19 @@ router.get('/', async (req, res, next) => {
   }
 })
 
-router.get('/:id', (req, res, next) => {
+router.get('/:id', checkAccountId, async (req, res, next) => {
   // DO YOUR MAGIC
+  res.status(200).json(req.account)
 })
 
-router.post('/', (req, res, next) => {
+router.post('/', checkAccountPayload, async (req, res, next) => {
   // DO YOUR MAGIC
+  try {
+    const newAccount = await Account.create(req.body);
+    res.status(201).json(newAccount)
+  } catch (err) {
+    next(err)
+  }
 })
 
 router.put('/:id', (req, res, next) => {
